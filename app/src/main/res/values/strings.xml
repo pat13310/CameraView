@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">CameraView</string>
+    <string name="flip">flip</string>
+    <string name="camera">camera</string>
+    <string name="photos">photos</string>
+    <string name="flash">flash</string>
 </resources>

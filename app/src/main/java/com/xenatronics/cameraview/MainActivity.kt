@@ -6,11 +6,12 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.camera.core.CameraSelector
+import androidx.compose.runtime.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.xenatronics.cameraview.presentation.screens.ViewCapture
@@ -24,8 +25,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var photoUri: Uri
+
+    //private val viewModel by viewModels<CameraViewModel>()
     private var shouldShowPhoto: MutableState<Boolean> = mutableStateOf(false)
     private var shouldShowCamera: MutableState<Boolean> = mutableStateOf(false)
+
 
     private fun handleImageCapture(uri: Uri) {
         Log.i("kilo", "Image captured: $uri")
@@ -43,28 +47,53 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        //Log.d("Main", "destroy")
         cameraExecutor.shutdown()
     }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                Log.d("Grant:", "OK")
                 shouldShowCamera.value = true
             } else {
-                Log.d("Grant:", "No")
+
             }
         }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+
+        }
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+
+        }
+        if (keyCode == KeyEvent.KEYCODE_POWER) {
+        }
+
+        return super.onKeyDown(keyCode, event)
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //val viewModel by viewModels<CameraViewModel>()
         setContent {
             if (shouldShowCamera.value) {
+                //var lensFacing =  lensFacing
+                var lensFacing by remember { mutableStateOf(CameraSelector.LENS_FACING_BACK) }
+
                 ViewCapture(
-                    outputDirectory = outputDirectory,
+                    lensFacing = lensFacing,
                     executor = cameraExecutor,
                     onImageCaptured = ::handleImageCapture,
-                    onError = { Log.e("kilo", "View error:", it) }
+                    onError = {
+                        Log.e("kilo", "View error:", it)
+                    },
+                    onChangeLens = {
+                        lensFacing =
+                            if (it == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else
+                                CameraSelector.LENS_FACING_BACK
+                    }
                 )
             }
             if (shouldShowPhoto.value) {
@@ -79,7 +108,6 @@ class MainActivity : ComponentActivity() {
             }
         }
         requestCameraPermission()
-
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -95,9 +123,7 @@ class MainActivity : ComponentActivity() {
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this as Activity,
                 Manifest.permission.CAMERA
-            ) -> {
-
-            }
+            ) -> Unit
             else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
