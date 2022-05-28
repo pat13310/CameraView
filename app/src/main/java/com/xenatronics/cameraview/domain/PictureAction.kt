@@ -5,4 +5,5 @@ sealed class PictureAction {
     object RotationImage : PictureAction()
     object BackAction : PictureAction()
     object CodeBarRecognition : PictureAction()
+    object TranslateText : PictureAction()
 }
