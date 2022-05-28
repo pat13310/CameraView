@@ -137,7 +137,5 @@ class DetectTextObject(
                     imageProxy.close()
                 }
         }
-
     }
-
 }

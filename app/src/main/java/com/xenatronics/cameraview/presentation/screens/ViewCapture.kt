@@ -35,8 +35,9 @@ import com.xenatronics.cameraview.domain.provider.getCameraProvider
 import com.xenatronics.cameraview.presentation.screens.components.CameraControls
 import java.util.concurrent.Executor
 
+private var controlCamera: CameraControl? = null
 
-@SuppressLint("UnrememberedMutableState", "RestrictedApi")
+@SuppressLint("RestrictedApi")
 @Composable
 fun ViewCapture(
     executor: Executor,
@@ -61,7 +62,7 @@ fun ViewCapture(
             it.setAnalyzer(executor, FaceAnalyzer())
         }
     var camera: Camera? = null
-    var controlCamera = camera?.cameraControl
+    //controlCamera = camera?.cameraControl
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -94,7 +95,7 @@ fun ViewCapture(
         }.onSuccess {
             it.also { camera = it }
             controlCamera = camera?.cameraControl
-            Log.d("OOPs", camera?.cameraInternals.toString())
+
             flashAvailable.value = preview.camera?.cameraInfo?.hasFlashUnit() ?: false
             if (flashAvailable.value) {
                 controlCamera?.enableTorch(flashEnabled)
@@ -107,7 +108,6 @@ fun ViewCapture(
     }
     scale = limitScales(scale)
     offset = limitOffset(scale, offset)
-
     // 3
     Box(
         contentAlignment = Alignment.BottomStart,
@@ -162,7 +162,6 @@ fun ViewCapture(
                 }
             }
         }
-
     }
 }
 
@@ -182,18 +181,14 @@ private fun limitScales(scale: Float): Float {
 
 
 private fun cameraInit(
-
     cameraSelector: CameraSelector,
     imageCapture: ImageCapture,
     faceAnalyzer: ImageAnalysis,
     preview: Preview,
     lifecycleOwner: LifecycleOwner,
     cameraProvider: ProcessCameraProvider
-
-
 ): Camera {
     var camera: Camera? = null
-
     try {
         cameraProvider.unbindAll()
         camera = cameraProvider.bindToLifecycle(
@@ -204,7 +199,6 @@ private fun cameraInit(
             faceAnalyzer
         )
     } catch (ex: Exception) {
-
         Log.d("err", ex.message.toString())
     }
     return camera!!

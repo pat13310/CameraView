@@ -4,6 +4,7 @@
     package="com.xenatronics.cameraview">
 
     <uses-feature android:name="android.hardware.camera.any" />
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -34,8 +35,7 @@
         </activity>
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr" />
-        <!-- To use multiple models: android:value="ocr,model2,model3" -->
+            android:value="ocr, barcode" />
     </application>
 
 </manifest>

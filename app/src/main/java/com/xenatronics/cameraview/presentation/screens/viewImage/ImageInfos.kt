@@ -1,4 +1,4 @@
-package com.xenatronics.cameraview.presentation.screens.ViewImage
+package com.xenatronics.cameraview.presentation.screens.viewImage
 
 import android.net.Uri
 import androidx.compose.runtime.Composable

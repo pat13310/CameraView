@@ -4,4 +4,6 @@
     <string name="camera">camera</string>
     <string name="photos">photos</string>
     <string name="flash">flash</string>
+    <string name="recognition">recognition</string>
+    <string name="codebar">codebar</string>
 </resources>

@@ -10,12 +10,15 @@ import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.camera.core.CameraSelector
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.xenatronics.cameraview.presentation.CameraViewModel
 import com.xenatronics.cameraview.presentation.screens.ViewCapture
-import com.xenatronics.cameraview.presentation.screens.ViewImage.ViewImage
+import com.xenatronics.cameraview.presentation.screens.viewImage.ViewImage
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -26,13 +29,12 @@ class MainActivity : ComponentActivity() {
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var photoUri: Uri
 
-    //private val viewModel by viewModels<CameraViewModel>()
+    private val viewModel by viewModels<CameraViewModel>()
     private var shouldShowPhoto: MutableState<Boolean> = mutableStateOf(false)
     private var shouldShowCamera: MutableState<Boolean> = mutableStateOf(false)
 
 
     private fun handleImageCapture(uri: Uri) {
-        Log.i("kilo", "Image captured: $uri")
         shouldShowCamera.value = false
         photoUri = uri
         shouldShowPhoto.value = true
@@ -47,7 +49,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        //Log.d("Main", "destroy")
         cameraExecutor.shutdown()
     }
 
@@ -61,22 +62,25 @@ class MainActivity : ComponentActivity() {
         }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-
+        return when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                true
+            }
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                true
+            }
+            KeyEvent.KEYCODE_POWER -> {
+                true
+            }
+            else -> {
+                super.onKeyDown(keyCode, event)
+            }
         }
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-
-        }
-        if (keyCode == KeyEvent.KEYCODE_POWER) {
-        }
-
-        return super.onKeyDown(keyCode, event)
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //val viewModel by viewModels<CameraViewModel>()
         setContent {
             if (shouldShowCamera.value) {
                 //var lensFacing =  lensFacing
@@ -98,12 +102,12 @@ class MainActivity : ComponentActivity() {
             }
             if (shouldShowPhoto.value) {
                 ViewImage(
-                    text = photoUri.toString(),
                     photoUri = photoUri,
-                    onClicked = {
-                        shouldShowPhoto.value = false
+                    context = LocalContext.current,
+                    onBack = {
                         shouldShowCamera.value = true
-                    }
+                        shouldShowPhoto.value = false
+                    },
                 )
             }
         }
