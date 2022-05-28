@@ -15,4 +15,4 @@ flash et galerie images
 
 **Version3.1**
 
-Intégration de la fonction de traduction
+Intégration de la fonction de traduction multilingue
