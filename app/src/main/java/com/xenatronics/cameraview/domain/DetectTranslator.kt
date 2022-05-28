@@ -10,7 +10,7 @@ import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
 
 
-fun TranslatorToFrench(translateLanguage: String): Translator {
+private fun translatorBuilder(translateLanguage: String): Translator {
     val options = TranslatorOptions.Builder()
         .setSourceLanguage(translateLanguage)
         .setTargetLanguage(TranslateLanguage.FRENCH)
@@ -18,28 +18,30 @@ fun TranslatorToFrench(translateLanguage: String): Translator {
     return Translation.getClient(options)
 }
 
+
 @Composable
-fun Translate(
+fun DetectTranslator(
     text: String,
     translateLanguage: String = TranslateLanguage.ENGLISH,
     onResult: (String) -> Unit,
     onError: (String) -> Unit
 ) {
-
     val downloaded = remember { mutableStateOf(false) }
-    val translator = TranslatorToFrench(translateLanguage)
+    val translator = translatorBuilder(translateLanguage)
     val conditions = DownloadConditions.Builder()
         .requireWifi()
         .build()
-    translator.downloadModelIfNeeded(conditions)
-        .addOnSuccessListener {
-            // Model downloaded successfully. Okay to start translating.
-            // (Set a flag, unhide the translation UI, etc.)
-            downloaded.value = true
-        }
-        .addOnFailureListener { exception ->
-            onError(exception.message.toString())
-        }
+    if (!downloaded.value) {
+        translator.downloadModelIfNeeded(conditions)
+            .addOnSuccessListener {
+                // Model downloaded successfully. Okay to start translating.
+                // (Set a flag, unhide the translation UI, etc.)
+                downloaded.value = true
+            }
+            .addOnFailureListener { exception ->
+                onError(exception.message.toString())
+            }
+    }
     if (downloaded.value) {
         translator.translate(text)
             .addOnSuccessListener {

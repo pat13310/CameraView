@@ -35,7 +35,7 @@
         </activity>
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr, barcode" />
+            android:value="ocr, barcode,barcode_ui" />
     </application>
 
 </manifest>
