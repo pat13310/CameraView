@@ -11,4 +11,4 @@ Version améliorée avec flash intégré mais bug à corriger sur celui-ci
 
 **Version3**
 
-Version supérieur avec intégration de reconnaissance de texte et code barre
+Version supérieure avec intégration de reconnaissance de texte et code barre
