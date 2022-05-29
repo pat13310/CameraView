@@ -16,3 +16,7 @@ flash et galerie images
 **Version3.1**
 
 Intégration de la fonction de traduction multilingue
+
+**Version3.2**
+
+Intégration des modules de reconnaissance texte, encre, codebarre, gms codebarre
