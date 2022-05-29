@@ -18,14 +18,14 @@ import com.xenatronics.cameraview.domain.PictureAction
 
 @Composable
 fun PictureControls(
+    modifier: Modifier,
     onPictureAction: (PictureAction) -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(1.1f)
-            .background(Color.Black.copy(alpha = 0.35f))
-            .padding(10.dp),
+            .background(Color.Black.copy(alpha = 0.45f))
+            .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

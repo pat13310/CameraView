@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.xenatronics.cameraview.domain.PictureAction
@@ -66,17 +67,19 @@ fun ViewImage(
                     )
                     .transformable(state)
             )
-            PictureControls(onPictureAction = { action ->
-                when (action) {
-                    is PictureAction.BackAction -> {
-                        onBack()
-                    }
-                    is PictureAction.RotationImage -> {
+            PictureControls(
+                modifier = Modifier.layoutId("options"),
+                onPictureAction = { action ->
+                    when (action) {
+                        is PictureAction.BackAction -> {
+                            onBack()
+                        }
+                        is PictureAction.RotationImage -> {
 
-                    }
-                    is PictureAction.CodeBarRecognition -> {
-                        detectScanCode(
-                            context = context,
+                        }
+                        is PictureAction.CodeBarRecognition -> {
+                            detectScanCode(
+                                context = context,
                             photoUri = photoUri,
                             onResult = { value ->
                                 Toast.makeText(context, "Valeur: $value", Toast.LENGTH_SHORT)

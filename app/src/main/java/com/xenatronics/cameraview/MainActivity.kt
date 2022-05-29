@@ -18,7 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.xenatronics.cameraview.presentation.CameraViewModel
 import com.xenatronics.cameraview.presentation.screens.ViewCapture
-import com.xenatronics.cameraview.presentation.screens.viewImage.ViewImage
+import com.xenatronics.cameraview.presentation.screens.ViewImageBis
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
                 )
             }
             if (shouldShowPhoto.value) {
-                ViewImage(
+                ViewImageBis(
                     photoUri = photoUri,
                     context = LocalContext.current,
                     onBack = {

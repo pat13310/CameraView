@@ -6,4 +6,7 @@ sealed class PictureAction {
     object BackAction : PictureAction()
     object CodeBarRecognition : PictureAction()
     object TranslateText : PictureAction()
+    object IncRecognition : PictureAction() {
+
+    }
 }
