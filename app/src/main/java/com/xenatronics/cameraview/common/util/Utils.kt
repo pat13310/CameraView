@@ -7,9 +7,8 @@ import android.webkit.MimeTypeMap
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-
+import androidx.compose.ui.geometry.Offset
 import androidx.core.net.toFile
-
 import com.xenatronics.cameraview.R
 import java.io.File
 import java.text.SimpleDateFormat
@@ -89,3 +88,19 @@ fun createFile(baseFolder: File, format: String, extension: String) =
         baseFolder, SimpleDateFormat(format, Locale.US)
             .format(System.currentTimeMillis()) + extension
     )
+
+
+fun valueLimits(scale: Float, offset: Offset): Offset {
+    if (scale < 1)
+        return Offset(x = 0f, y = 18f)
+    return offset
+}
+
+fun limitScales(scale: Float): Float {
+    if (scale < 0.7)
+        return 0.7f
+    if (scale > 10)
+        return 10f
+    return scale
+}
+

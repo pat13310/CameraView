@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.ArrowBack
-import androidx.compose.material.icons.sharp.QrCode2
+import androidx.compose.material.icons.sharp.PhotoLibrary
 import androidx.compose.material.icons.sharp.TextFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -14,12 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.xenatronics.cameraview.R
-import com.xenatronics.cameraview.domain.PictureAction
+import com.xenatronics.cameraview.domain.UIAction
 
 @Composable
 fun PictureControls(
     modifier: Modifier,
-    onPictureAction: (PictureAction) -> Unit
+    onPictureAction: (UIAction) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -33,7 +33,7 @@ fun PictureControls(
             Icons.Sharp.ArrowBack,
             R.string.flip,
             modifier = Modifier.size(40.dp),
-            onClick = { onPictureAction(PictureAction.BackAction) }
+            onClick = { onPictureAction(UIAction.BackAction) }
         )
         CameraControl(
             Icons.Sharp.TextFormat,
@@ -42,14 +42,14 @@ fun PictureControls(
                 .size(40.dp)
                 .padding(1.dp)
                 .border(1.dp, Color.White, CircleShape),
-            onClick = { onPictureAction(PictureAction.TextRecognition) }
+            onClick = { onPictureAction(UIAction.TextRecognition) }
         )
         CameraControl(
-            Icons.Sharp.QrCode2,
+            Icons.Sharp.PhotoLibrary,
             R.string.codebar,
             modifier = Modifier
                 .size(40.dp),
-            onClick = { onPictureAction(PictureAction.CodeBarRecognition) }
+            onClick = { onPictureAction(UIAction.MediaImage) }
         )
     }
 }

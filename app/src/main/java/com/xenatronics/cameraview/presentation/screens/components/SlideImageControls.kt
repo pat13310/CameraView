@@ -10,13 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.xenatronics.cameraview.domain.PictureAction
+import com.xenatronics.cameraview.domain.UIAction
 
 @Composable
 fun SlideImageControls(
     modifier: Modifier,
     list: List<ItemDetect>,
-    onAction: (PictureAction) -> Unit
+    onAction: (UIAction) -> Unit
 ) {
     LazyRow(
         modifier = modifier

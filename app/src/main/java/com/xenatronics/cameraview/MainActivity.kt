@@ -18,7 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.xenatronics.cameraview.presentation.CameraViewModel
 import com.xenatronics.cameraview.presentation.screens.ViewCapture
-import com.xenatronics.cameraview.presentation.screens.ViewImageBis
+import com.xenatronics.cameraview.presentation.screens.viewImage.ViewImageBis
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<CameraViewModel>()
     private var shouldShowPhoto: MutableState<Boolean> = mutableStateOf(false)
     private var shouldShowCamera: MutableState<Boolean> = mutableStateOf(false)
+    private var shouldForcePhoto: MutableState<Boolean> = mutableStateOf(false)
 
 
     private fun handleImageCapture(uri: Uri) {
@@ -83,7 +84,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             if (shouldShowCamera.value) {
-                //var lensFacing =  lensFacing
                 var lensFacing by remember { mutableStateOf(CameraSelector.LENS_FACING_BACK) }
 
                 ViewCapture(
@@ -100,14 +100,22 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
-            if (shouldShowPhoto.value) {
+            if (shouldShowPhoto.value || shouldForcePhoto.value) {
                 ViewImageBis(
                     photoUri = photoUri,
                     context = LocalContext.current,
                     onBack = {
                         shouldShowCamera.value = true
                         shouldShowPhoto.value = false
+                        shouldForcePhoto.value = false
+
                     },
+                    onImageCaptured = {
+                        //::handleImageCapture
+                        photoUri = it
+                        shouldForcePhoto.value = true
+                        shouldShowPhoto.value = !shouldShowPhoto.value
+                    }
                 )
             }
         }

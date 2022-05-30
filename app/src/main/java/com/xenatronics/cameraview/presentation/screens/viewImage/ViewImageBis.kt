@@ -1,10 +1,13 @@
-package com.xenatronics.cameraview.presentation.screens
+package com.xenatronics.cameraview.presentation.screens.viewImage
 
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
@@ -17,12 +20,16 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import coil.compose.rememberImagePainter
-import com.xenatronics.cameraview.domain.PictureAction
+import com.xenatronics.cameraview.common.util.getOutputDirectory
+import com.xenatronics.cameraview.common.util.limitScales
+import com.xenatronics.cameraview.common.util.valueLimits
+import com.xenatronics.cameraview.domain.UIAction
 import com.xenatronics.cameraview.domain.detectScanCode
 import com.xenatronics.cameraview.domain.detectText
 import com.xenatronics.cameraview.presentation.screens.components.ItemDetect
@@ -34,21 +41,29 @@ import com.xenatronics.cameraview.presentation.screens.components.SlideImageCont
 fun ViewImageBis(
     photoUri: Uri,
     context: Context,
-    onBack: () -> Unit
+    onImageCaptured: (Uri) -> Unit,
+    onBack: () -> Unit,
 ) {
+    val top = 0f
     var scale by remember { mutableStateOf(1f) }
     var rotation by remember { mutableStateOf(0f) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
+    var offset by remember { mutableStateOf(Offset(x = 0f, y = top)) }
     val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
         scale *= zoomChange
         rotation += rotationChange
         offset += offsetChange
     }
-    //scale = limitScales(scale)
-    //offset = valueLimits(scale, offset)
+    scale = limitScales(scale)
+    offset = valueLimits(scale, offset)
 
     val texte = remember { mutableStateOf("Scanner") }
     val scroll = rememberScrollState()
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) onImageCaptured(uri)
+    }
 
     BoxWithConstraints {
         val contraints = constraintsLayout()
@@ -62,57 +77,34 @@ fun ViewImageBis(
                     .padding(16.dp)
                     .verticalScroll(scroll),
             )
-
-//            Box(
-//                modifier = Modifier
-//                    .layoutId("textValue")
-//                    .background(Color.Black)
-//                    //.verticalScroll(scroll)
-//                    .fillMaxWidth()
-//                    .requiredHeight(120.dp)
-//                //.height(150.dp)
-//                //.clip(MaterialTheme.shapes.medium)
-//
-//            ) {
-//                var yOffset by remember { mutableStateOf(0f) }
-//                Text(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .offset { IntOffset(0, yOffset.roundToInt()) }
-//                        .draggable(orientation = Orientation.Vertical,
-//                            state = rememberDraggableState { distance ->
-//                                yOffset += distance
-//                                if (yOffset > 0)
-//                                    yOffset = 0f
-//                                println(yOffset)
-//                            }),
-//                    //.padding(vertical = 15.dp)
-//
-//                    text = texte.value,
-//                    color = MaterialTheme.colors.primary,
-//                )
-//
-//            }
             Box(
                 modifier = Modifier
+                    //.align(Alignment.Center)
                     .layoutId("image")
-
                     .clipToBounds()
+                    .fillMaxHeight(0.70f)
             ) {
-
                 Image(
                     modifier = Modifier
-                        //.fillMaxWidth()
                         .graphicsLayer(
                             scaleX = scale,
                             scaleY = scale,
                             rotationZ = 0.0f,
                             translationX = offset.x,
-                            translationY = offset.y,
+                            translationY = offset.y + top,
                             clip = false,
                             renderEffect = null
                         )
-                        .transformable(state),
+                        .pointerInput(this) {
+                            detectTapGestures(
+                                onLongPress = {
+                                    scale = 1f
+                                    offset = Offset.Zero
+                                }
+                            )
+                        }
+                        .transformable(state)
+                        .fillMaxSize(),
 
                     painter = rememberImagePainter(photoUri),
                     contentDescription = null
@@ -124,14 +116,14 @@ fun ViewImageBis(
                     .layoutId("options")
                     .background(color = Color.Black.copy(alpha = 0.45f)),
                 list = listOf(
-                    ItemDetect("Texte", PictureAction.TextRecognition),
-                    ItemDetect("Code Barre", PictureAction.CodeBarRecognition),
-                    ItemDetect("Encre", PictureAction.IncRecognition),
-                    ItemDetect("Traduction", PictureAction.TranslateText)
+                    ItemDetect("Texte", UIAction.TextRecognition),
+                    ItemDetect("Code Barre", UIAction.CodeBarRecognition),
+                    ItemDetect("Encre", UIAction.IncRecognition),
+                    ItemDetect("Traduction", UIAction.TranslateText)
                 ),
                 onAction = { action ->
                     when (action) {
-                        is PictureAction.TextRecognition -> {
+                        is UIAction.TextRecognition -> {
                             detectText(
                                 context = context,
                                 photoUri = photoUri,
@@ -142,7 +134,7 @@ fun ViewImageBis(
                                 }
                             )
                         }
-                        is PictureAction.CodeBarRecognition -> {
+                        is UIAction.CodeBarRecognition -> {
                             detectScanCode(
                                 context = context,
                                 photoUri = photoUri,
@@ -154,14 +146,11 @@ fun ViewImageBis(
                                 }
                             )
                         }
-                        is PictureAction.IncRecognition -> {
-
+                        is UIAction.IncRecognition -> {
                         }
-                        is PictureAction.TranslateText -> {
-
+                        is UIAction.TranslateText -> {
                         }
-                        is PictureAction.BackAction -> {
-
+                        is UIAction.BackAction -> {
                         }
                         else -> Unit
                     }
@@ -170,13 +159,13 @@ fun ViewImageBis(
                 modifier = Modifier.layoutId("controls"),
                 onPictureAction = { action ->
                     when (action) {
-                        is PictureAction.BackAction -> {
+                        is UIAction.BackAction -> {
                             onBack()
                         }
-                        is PictureAction.RotationImage -> {
+                        is UIAction.RotationImage -> {
 
                         }
-                        is PictureAction.CodeBarRecognition -> {
+                        is UIAction.CodeBarRecognition -> {
                             detectScanCode(
                                 context = context,
                                 photoUri = photoUri,
@@ -188,7 +177,12 @@ fun ViewImageBis(
                                 }
                             )
                         }
-                        is PictureAction.TextRecognition -> {
+                        is UIAction.MediaImage -> {
+                            if (true == context.getOutputDirectory().listFiles()?.isNotEmpty()) {
+                                galleryLauncher.launch("image/*")
+                            }
+                        }
+                        is UIAction.TextRecognition -> {
                             detectText(
                                 context = context,
                                 photoUri = photoUri,
@@ -214,28 +208,28 @@ fun constraintsLayout(): ConstraintSet {
         val controls = createRefFor("controls")
 
         constrain(textValue) {
-            top.linkTo(parent.top)
-            bottom.linkTo(image.top)
-            start.linkTo(parent.start)
             end.linkTo(parent.end)
+            start.linkTo(parent.start)
+            top.linkTo(parent.top, margin = 2.dp)
+            bottom.linkTo(image.top, margin = 24.dp)
         }
         constrain(image) {
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
             top.linkTo(textValue.bottom)
             bottom.linkTo(controls.top)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
         }
         constrain(options) {
-            top.linkTo(image.bottom)
-            bottom.linkTo(controls.top)
             start.linkTo(parent.start)
             end.linkTo(parent.end)
+            top.linkTo(image.bottom, margin = 1.dp)
+            bottom.linkTo(controls.top)
         }
         constrain(controls) {
-            top.linkTo(options.bottom)
-            bottom.linkTo(parent.bottom)
             start.linkTo(parent.start)
             end.linkTo(parent.end)
+            top.linkTo(options.bottom, margin = 1.dp)
+            bottom.linkTo(parent.bottom, margin = 0.dp)
         }
     }
 }

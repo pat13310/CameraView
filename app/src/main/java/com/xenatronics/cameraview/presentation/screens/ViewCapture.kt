@@ -28,7 +28,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import com.xenatronics.cameraview.common.util.getOutputDirectory
+import com.xenatronics.cameraview.common.util.limitScales
 import com.xenatronics.cameraview.common.util.takePhoto
+import com.xenatronics.cameraview.common.util.valueLimits
 import com.xenatronics.cameraview.domain.CameraUIAction
 import com.xenatronics.cameraview.domain.analyzer.FaceAnalyzer
 import com.xenatronics.cameraview.domain.provider.getCameraProvider
@@ -61,8 +63,7 @@ fun ViewCapture(
         .also {
             it.setAnalyzer(executor, FaceAnalyzer())
         }
-    var camera: Camera? = null
-    //controlCamera = camera?.cameraControl
+    var camera: Camera?
     val galleryLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -78,11 +79,9 @@ fun ViewCapture(
         rotation += rotationChange
         offset += offsetChange
     }
-
     // 2
     LaunchedEffect(key1 = lensFacing) {
         val cameraProvider = context.getCameraProvider()
-
         cameraProvider.runCatching {
             unbindAll()
             bindToLifecycle(
@@ -95,7 +94,6 @@ fun ViewCapture(
         }.onSuccess {
             it.also { camera = it }
             controlCamera = camera?.cameraControl
-
             flashAvailable.value = preview.camera?.cameraInfo?.hasFlashUnit() ?: false
             if (flashAvailable.value) {
                 controlCamera?.enableTorch(flashEnabled)
@@ -107,7 +105,7 @@ fun ViewCapture(
         preview.setSurfaceProvider(executor, previewView.surfaceProvider)
     }
     scale = limitScales(scale)
-    offset = limitOffset(scale, offset)
+    offset = valueLimits(scale, offset)
     // 3
     Box(
         contentAlignment = Alignment.BottomStart,
@@ -165,19 +163,6 @@ fun ViewCapture(
     }
 }
 
-private fun limitOffset(scale: Float, offset: Offset): Offset {
-    if (scale < 1)
-        return Offset.Zero
-    return offset
-}
-
-private fun limitScales(scale: Float): Float {
-    if (scale < 0.7)
-        return 0.7f
-    if (scale > 10)
-        return 10f
-    return scale
-}
 
 
 private fun cameraInit(
